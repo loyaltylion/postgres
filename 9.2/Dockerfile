@@ -36,9 +36,14 @@ RUN apt-get update \
 	&& apt-get install -y postgresql-common \
 	&& sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
 	&& apt-get install -y \
+		make gcc python-pip git \ 
 		postgresql-$PG_MAJOR=$PG_VERSION \
 		postgresql-contrib-$PG_MAJOR=$PG_VERSION \
-	&& rm -rf /var/lib/apt/lists/*
+		postgresql-server-dev-$PG_MAJOR \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& pip install pgxnclient && pgxn install temporal_tables \
+	&& git clone https://bitbucket.org/IVC-Inc/json_enhancements && cd json_enhancements && NOHSTORE=1 make && make install \
+	&& cd ~ && git clone https://github.com/omniti-labs/pg_amqp && cd pg_amqp && make && make install
 
 # make the sample config easier to munge (and "correct by default")
 RUN mv -v /usr/share/postgresql/$PG_MAJOR/postgresql.conf.sample /usr/share/postgresql/ \
